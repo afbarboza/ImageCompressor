@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">ImageCompressPOC</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="load_image_from_gallery">Load Image from Gallery</string>
+</resources>
