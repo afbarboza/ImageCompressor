@@ -2,10 +2,8 @@ package com.example.imagecompresspoc
 
 import android.content.Intent
 import android.database.Cursor
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
@@ -13,8 +11,10 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
+import com.bumptech.glide.signature.ObjectKey
 import com.example.imagecompresspoc.databinding.ActivityReadPhotoBinding
 import java.io.File
+import kotlin.math.roundToInt
 
 
 class ReadPhotoActivity : AppCompatActivity() {
@@ -43,19 +43,33 @@ class ReadPhotoActivity : AppCompatActivity() {
             val picturePath = cursor.getString(columnIndex)
             cursor.close()
 
-            //viewBinding.imgOriginalImage.setImageBitmap(BitmapFactory.decodeFile(picturePath))
 
-            val size = CelphotusCompressor.getImageSizeInBytes(picturePath)
-            Log.d(TAG, "File Size Before Compression: ${size}")
+            /* original picture */
+            Log.d(TAG, picturePath)
+            val originalSize = CelphotusCompressor.getImageSizeInBytes(picturePath)
+            Log.d(TAG, "File Size Before Compression: ${originalSize}")
 
-            CelphotusCompressor.compressImage(picturePath)
+            /* webp picture */
+            val pathToCompressedImageWebp = CelphotusCompressor.compressImageToWebp(picturePath, this)
+            val sizeWebp = CelphotusCompressor.getImageSizeInBytes("$pathToCompressedImageWebp")
+            val percentageWebp = ((sizeWebp / (1.0 * originalSize)) * 100)
+            Log.d(TAG, "File Size After Compression (WEBP): $sizeWebp (${String.format("%.2f", percentageWebp)}%)")
 
-            val compressedFilePath = "${Environment.getExternalStorageDirectory()}/test.webp"
-            val size2 = CelphotusCompressor.getImageSizeInBytes("$compressedFilePath")
-            Log.d(TAG, "File Size After Compression: ${size2}")
+            /* png picture */
+            val pathToCompressedImagePng = CelphotusCompressor.compressImageToPng(picturePath, this)
+            val sizePng = CelphotusCompressor.getImageSizeInBytes("$pathToCompressedImagePng")
+            val percentagePng = ((sizePng / (1.0 * originalSize)) * 100)
+            Log.d(TAG, "File Size After Compression (PNG): ${sizePng} (${String.format("%.2f", percentagePng)}%)")
 
-            Glide.with(this)
-                .load(File(compressedFilePath))
+            /* jpeg picture */
+            val pathToCompressedImageJpeg = CelphotusCompressor.compressImageToJpeg(picturePath, this)
+            val sizeJpeg = CelphotusCompressor.getImageSizeInBytes("$pathToCompressedImageJpeg")
+            val percentageJpeg = ((sizeJpeg / (1.0 * originalSize)) * 100)
+            Log.d(TAG, "File Size After Compression (JPEG): ${sizeJpeg} (${String.format("%.2f", percentageJpeg)}%)")
+
+             Glide.with(this)
+                .load(File(pathToCompressedImageWebp))
+                .signature(ObjectKey(System.currentTimeMillis().toString()))
                 .into(viewBinding.imgOriginalImage)
         }
     }
