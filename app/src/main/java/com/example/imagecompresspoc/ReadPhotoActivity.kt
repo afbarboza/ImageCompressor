@@ -5,7 +5,9 @@ import android.database.Cursor
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,7 +21,7 @@ class ReadPhotoActivity : AppCompatActivity() {
 
     private lateinit var viewBinding: ActivityReadPhotoBinding
 
-    private val LOAD_FROM_GALLERY_CODE: Int = 0xFF
+    private val TAG = "CelphotusCompressorTag"
 
     private val launcher = registerForActivityResult<Intent, ActivityResult>(
         ActivityResultContracts.StartActivityForResult()
@@ -42,11 +44,19 @@ class ReadPhotoActivity : AppCompatActivity() {
             cursor.close()
 
             //viewBinding.imgOriginalImage.setImageBitmap(BitmapFactory.decodeFile(picturePath))
-            Glide.with(this)
-                .load(File(picturePath))
-                .into(viewBinding.imgOriginalImage)
 
-            Toast.makeText(this, "Image Loaded Successfully Inside Glide Frame", Toast.LENGTH_LONG).show()
+            val size = CelphotusCompressor.getImageSizeInBytes(picturePath)
+            Log.d(TAG, "File Size Before Compression: ${size}")
+
+            CelphotusCompressor.compressImage(picturePath)
+
+            val compressedFilePath = "${Environment.getExternalStorageDirectory()}/test.webp"
+            val size2 = CelphotusCompressor.getImageSizeInBytes("$compressedFilePath")
+            Log.d(TAG, "File Size After Compression: ${size2}")
+
+            Glide.with(this)
+                .load(File(compressedFilePath))
+                .into(viewBinding.imgOriginalImage)
         }
     }
 
@@ -55,6 +65,7 @@ class ReadPhotoActivity : AppCompatActivity() {
         viewBinding = ActivityReadPhotoBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
         initWidgets()
+
     }
 
     private fun initWidgets() {
