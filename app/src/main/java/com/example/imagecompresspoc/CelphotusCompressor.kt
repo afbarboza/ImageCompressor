@@ -12,9 +12,8 @@ import java.io.FileOutputStream
 class CelphotusCompressor {
 
     companion object {
-        private val TAG = "CelphotusCompressorLogger"
+        private val TAG = "CelphotusCompressorTag"
         private val WEBP_EXTENSION = ".webp"
-        private val PNG_EXTENSION = ".png"
         private val JPEG_EXTENSION = ".jpeg"
 
         fun getImageSizeInBytes(picturePath: String): Long {
@@ -35,27 +34,6 @@ class CelphotusCompressor {
             try {
                 val out = FileOutputStream(compressedFilePath)
                 bmp.compress(Bitmap.CompressFormat.WEBP, 50, out)
-                out.close()
-                absolutePathToCompressedFile = compressedFilePath.absolutePath
-            } catch (e: Exception) {
-                Log.e(TAG, "Error while trying to compress the image\n", e)
-            } finally {
-                return absolutePathToCompressedFile
-            }
-        }
-
-        fun compressImageToPng(picturePath: String, context: Context): String {
-            var absolutePathToCompressedFile = ""
-
-            val bmp = BitmapFactory.decodeFile(picturePath)
-            val directory = getPictureDirectory(context)
-
-            val compressedFileName = createFileName()
-            val compressedFilePath = File(directory, "$compressedFileName$PNG_EXTENSION")
-
-            try {
-                val out = FileOutputStream(compressedFilePath)
-                bmp.compress(Bitmap.CompressFormat.PNG, 98, out)
                 out.close()
                 absolutePathToCompressedFile = compressedFilePath.absolutePath
             } catch (e: Exception) {

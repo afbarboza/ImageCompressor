@@ -29,7 +29,7 @@ class ReadPhotoActivity : AppCompatActivity() {
         if (result.resultCode == RESULT_OK && result.data != null
         ) {
             val photoUri: Uri = result.data!!.data!!
-            Toast.makeText(this, "Photo Loaded Successfully from ${photoUri?.path}", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Photo Loaded Successfully from ${photoUri?.path}.\nConverting to JPEG", Toast.LENGTH_LONG).show()
 
 
             val filePathColumn = arrayOf(MediaStore.Images.Media.DATA)
@@ -55,12 +55,6 @@ class ReadPhotoActivity : AppCompatActivity() {
             val percentageWebp = ((sizeWebp / (1.0 * originalSize)) * 100)
             Log.d(TAG, "File Size After Compression (WEBP): $sizeWebp (${String.format("%.2f", percentageWebp)}%)")
 
-            /* png picture */
-            val pathToCompressedImagePng = CelphotusCompressor.compressImageToPng(picturePath, this)
-            val sizePng = CelphotusCompressor.getImageSizeInBytes("$pathToCompressedImagePng")
-            val percentagePng = ((sizePng / (1.0 * originalSize)) * 100)
-            Log.d(TAG, "File Size After Compression (PNG): ${sizePng} (${String.format("%.2f", percentagePng)}%)")
-
             /* jpeg picture */
             val pathToCompressedImageJpeg = CelphotusCompressor.compressImageToJpeg(picturePath, this)
             val sizeJpeg = CelphotusCompressor.getImageSizeInBytes("$pathToCompressedImageJpeg")
@@ -68,7 +62,7 @@ class ReadPhotoActivity : AppCompatActivity() {
             Log.d(TAG, "File Size After Compression (JPEG): ${sizeJpeg} (${String.format("%.2f", percentageJpeg)}%)")
 
              Glide.with(this)
-                .load(File(pathToCompressedImageWebp))
+                .load(File(pathToCompressedImageJpeg))
                 .signature(ObjectKey(System.currentTimeMillis().toString()))
                 .into(viewBinding.imgOriginalImage)
         }
