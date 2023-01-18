@@ -2,6 +2,7 @@ package com.example.imagecompresspoc
 
 import android.content.Intent
 import android.database.Cursor
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -12,7 +13,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.signature.ObjectKey
+import com.example.imagecompresspoc.CelphotusCompressor.Companion.compressImageToJpegBitmap
 import com.example.imagecompresspoc.databinding.ActivityReadPhotoBinding
+import java.io.ByteArrayOutputStream
 import java.io.File
 import kotlin.math.roundToInt
 
@@ -29,8 +32,6 @@ class ReadPhotoActivity : AppCompatActivity() {
         if (result.resultCode == RESULT_OK && result.data != null
         ) {
             val photoUri: Uri = result.data!!.data!!
-            Toast.makeText(this, "Photo Loaded Successfully from ${photoUri?.path}.\nConverting to JPEG", Toast.LENGTH_LONG).show()
-
 
             val filePathColumn = arrayOf(MediaStore.Images.Media.DATA)
             val cursor: Cursor? = contentResolver.query(
@@ -61,9 +62,10 @@ class ReadPhotoActivity : AppCompatActivity() {
             val percentageJpeg = ((sizeJpeg / (1.0 * originalSize)) * 100)
             Log.d(TAG, "File Size After Compression (JPEG): ${sizeJpeg} (${String.format("%.2f", percentageJpeg)}%)")
 
-             Glide.with(this)
-                .load(File(pathToCompressedImageJpeg))
-                .signature(ObjectKey(System.currentTimeMillis().toString()))
+            val compressedImgBmpInJpeg: Bitmap = compressImageToJpegBitmap(picturePath, this)
+            Toast.makeText(this, "Converting to JPEG and loading bitmap.", Toast.LENGTH_LONG).show()
+            Glide.with(this)
+                .load(compressedImgBmpInJpeg)
                 .into(viewBinding.imgOriginalImage)
         }
     }
